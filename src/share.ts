@@ -38,13 +38,6 @@ export function getShareText(result: ShareResult): string {
   return `${record}\n長押し＆スワイプで、目指せ最高飛距離。\n#ニラ飛ばし #NIRATHROW\n${getGameUrl()}`;
 }
 
-/** A text-only alternative: X intent does not attach the generated card image. */
-export function getXShareUrl(result: ShareResult): string {
-  const url = new URL('https://twitter.com/intent/tweet');
-  url.searchParams.set('text', getShareText(result));
-  return url.href;
-}
-
 function loadPhoto(): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const photo = new Image();
@@ -200,9 +193,10 @@ export async function shareResultCard(prepared: PreparedResultCard): Promise<'sh
     }
     if (canShareFile) {
       try {
-        const urlSuffix = `\n${prepared.gameUrl}`;
-        const nativeText = prepared.text.endsWith(urlSuffix) ? prepared.text.slice(0, -urlSuffix.length) : prepared.text;
-        await navigator.share({ title: 'ニラ飛ばし', text: nativeText, url: prepared.gameUrl, files: [prepared.file] });
+        // WebKit passes `text` and `url` as separate native items. Some targets
+        // keep the URL item and drop the caption. Send one complete caption so
+        // the distance, introduction, hashtags and URL stay together.
+        await navigator.share({ title: 'ニラ飛ばし', text: prepared.text, files: [prepared.file] });
         return 'shared';
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') return 'cancelled';

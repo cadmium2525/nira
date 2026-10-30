@@ -1,7 +1,7 @@
 import './style.css';
 import { GameScene } from './scene';
 import { createChives, createWind, launch, powerAt, stepFlight, type Chive, type Flight, type ThrowResult, type Wind } from './simulation';
-import { prepareResultCard, shareResultCard, downloadResultCard, getXShareUrl, getShareText, type PreparedResultCard, type ShareResult } from './share';
+import { prepareResultCard, shareResultCard, downloadResultCard, type PreparedResultCard, type ShareResult } from './share';
 
 const icons = {
  leaf: '<svg viewBox="0 0 40 44" fill="none"><path d="M10 35C5 18 16 3 32 2 34 19 23 34 10 35Z" fill="currentColor"/><path d="M8 42 24 13" stroke="#b8c99a" stroke-width="2.5" stroke-linecap="round"/><path d="M17 37C15 24 24 16 36 15 35 28 28 35 17 37Z" fill="currentColor"/></svg>',
@@ -49,7 +49,6 @@ $('#app').innerHTML = `
   <section id="result" class="result hidden" aria-label="結果発表">
     <div class="result-card"><div id="card-loading">記録をカードにしています<span>…</span></div><img id="card-preview" alt="ニラの写真と2投の飛距離が入った結果カード" class="hidden" /></div>
     <div class="result-actions"><button id="share" class="primary" disabled>${icons.share}<span>記録をシェア</span></button><button id="again" class="secondary">${icons.replay}<span>もう一度</span></button><button id="save" class="icon-button" disabled aria-label="結果画像を保存">${icons.download}</button></div>
-    <div class="share-extras"><button id="copy-text">投稿文をコピー</button><span>·</span><button id="share-x">Xに投稿 ↗</button></div>
   </section>
   <footer><span>A LITTLE GREEN. A BIG DREAM.</span><span id="footer-right">2 THROWS, ONE BEST.</span></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
@@ -210,7 +209,6 @@ async function showResult() {
 }
 function replay() {
   resultGeneration++; if(prepared) URL.revokeObjectURL(prepared.url);prepared=null;
-  document.querySelector('.copy-fallback')?.remove();
   results=[];selected=[];flight=null;chives=createChives();scene.setFlight(null);scene.setChives(chives);populatePicks();updatePicks();setPhase('select');
 }
 
@@ -226,10 +224,8 @@ const help=$<HTMLDialogElement>('#help-dialog');
 $('#help').addEventListener('click',()=>{cancelGesture();help.showModal();});
 $('.dialog-close').addEventListener('click',()=>help.close());$('.dialog-done').addEventListener('click',()=>help.close());
 help.addEventListener('click',e=>{if(e.target===help){const r=help.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)help.close();}});
-$('#share').addEventListener('click',async()=>{if(!prepared)return;const button=$<HTMLButtonElement>('#share');button.disabled=true;try{const status=await shareResultCard(prepared);if(status==='downloaded')toast('画像を保存しました。投稿文もコピーして使えます');}finally{button.disabled=false;}});
+$('#share').addEventListener('click',async()=>{if(!prepared)return;const button=$<HTMLButtonElement>('#share');button.disabled=true;try{const status=await shareResultCard(prepared);if(status==='downloaded')toast('結果画像を保存しました');}finally{button.disabled=false;}});
 $('#save').addEventListener('click',()=>{if(prepared){downloadResultCard(prepared);toast('結果画像を保存しました');}});
-$('#copy-text').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(getShareText(shareData()));toast('URL・タグ入りの投稿文をコピーしました');}catch{toast('投稿文を選択してコピーしてください');document.querySelector('.copy-fallback')?.remove();const area=document.createElement('textarea');area.value=getShareText(shareData());area.className='copy-fallback';$('#result').append(area);area.focus();area.select();}});
-$('#share-x').addEventListener('click',()=>{window.open(getXShareUrl(shareData()),'_blank','noopener,noreferrer');toast('写真は保存した結果画像を添付してください');});
 
 const gestureEl=$('#gesture');
 gestureEl.addEventListener('pointerdown',e=>{if(e.button!==0||gesture)return;beginGesture(e.pointerId,e.clientX,e.clientY);if(gesture){gestureEl.setPointerCapture(e.pointerId);e.preventDefault();}});

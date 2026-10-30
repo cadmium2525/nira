@@ -46,7 +46,9 @@ npm run build
 
 「記録をシェア」は、対応端末でOSの共有画面を開き、結果のPNG画像・投稿文・タグ・ゲームURLを渡します。共有先を選んで、SNS側で投稿を確定してください。Web Share API はHTTPS上で動作し、利用できる共有先や画像・文章の受け取り方は端末とSNSに依存します。[MDN: Navigator.share()](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share)
 
-ファイル共有に対応しないブラウザーでは画像を保存できます。「投稿文をコピー」で文面をコピーし、「Xに投稿」でURL・タグ入りの投稿画面を開けます。Xの投稿画面には画像を自動添付できないため、保存した画像を添付してください。SNSのログイン情報や投稿用APIキーはこのゲームでは扱いません。
+共有時は紹介文・飛距離・タグ・ゲームURLを一つの本文にまとめ、画像と一緒に渡します。iPhoneの共有先がURLだけを選んで本文を落とすことを避けるため、URLは独立した共有項目にしていません。実機のiPhone版Xでの反映は別途確認が必要です。
+
+ファイル共有に対応しないブラウザーでは画像を保存し、可能な場合は投稿文もコピーします。常設の投稿文コピー・X投稿の補助ボタンは表示しません。SNSのログイン情報や投稿用APIキーはこのゲームでは扱いません。
 
 ## 主なファイル
 
@@ -56,7 +58,7 @@ npm run build
 | `src/scene.ts` | Three.js のニラ・舞台・コース・カメラ |
 | `src/simulation.ts` | パワー・風・飛行・場外の判定 |
 | `src/share.ts` | 結果PNG・投稿文・共有処理 |
-| `public/nira-photo.png` | 結果カード用のニラ画像 |
+| `public/nira-photo.jpg` | 結果カード用のニラ画像 |
 | `.github/workflows/deploy.yml` | テストと GitHub Pages への公開 |
 
 描画には [Three.js](https://threejs.org/) を使用しています。[公式ドキュメント](https://threejs.org/docs/)
